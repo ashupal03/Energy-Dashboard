@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <h1 class="logo">Energy Monitor</h1>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item active">
+                        <a href="#home" class="nav-link">
+                            <span class="nav-icon">🏠</span>
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#analysis" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            Analysis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#usage" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                             Usage
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#energy" class="nav-link">
+                            <span class="nav-icon">⚡</span>
+                            Energy
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <button id="themeToggle" class="theme-toggle">
+        <span class="theme-icon">🌙</span>
+    </button>
+    
+    <div class="alert-container"></div>
+    <div class="dashboard">
+        <!-- Home Tab -->
+        <div class="tab-content" id="home">
+            <div class="card chart-card">
+                <h2>Real-Time Energy Usage</h2>
+                <div class="chart-container">
+                    <canvas id="energyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Current Usage</h2>
+                <p class="current-usage">160 W</p>
+            </div>
+
+            <div class="card recommendations">
+                <h2>Recommendations</h2>
+                <ul>
+                    <li>Turn off unused lights in the living room.</li>
+                    <li>Schedule AC usage to non-peak hours.</li>
+                    <li>Monitor refrigerator for excessive consumption.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Analysis Tab -->
+        <div class="tab-content" id="analysis">
+            <div class="card analysis-card">
+                <h2>Home Energy Analysis</h2>
+                <div class="analysis-grid">
+                    <div class="analysis-item peak-usage">
+                        <h3>Peak Usage Time</h3>
+                        <p class="peak-time">6:00 PM - 9:00 PM</p>
+                        <div class="usage-bar">
+                            <div class="bar-fill" style="width: 85%"></div>
+                        </div>
+                        <p class="usage-value">85% of daily usage</p>
+                    </div>
+
+                    <div class="analysis-item cost-analysis">
+                        <h3>Cost Analysis</h3>
+                        <div class="cost-details">
+                            <div class="cost-item">
+                                <span class="cost-label">Daily Cost</span>
+                                <span class="cost-value">₹45.20</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="cost-label">Monthly Cost</span>
+                                <span class="cost-value">₹1,356.00</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="cost-label">Yearly Cost</span>
+                                <span class="cost-value">₹16,272.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-item efficiency-score">
+                        <h3>Energy Efficiency Score</h3>
+                        <div class="score-circle">
+                            <svg class="progress-ring" width="120" height="120">
+                                <circle class="progress-ring-circle-bg" cx="60" cy="60" r="54" />
+                                <circle class="progress-ring-circle" cx="60" cy="60" r="54" />
+                            </svg>
+                            <div class="score-value">78%</div>
+                        </div>
+                        <p class="score-label">Good</p>
+                    </div>
+
+                    <div class="analysis-item device-breakdown">
+                        <h3>Device Breakdown</h3>
+                        <div class="device-list">
+                            <div class="device-item">
+                                <span class="device-name">AC</span>
+                                <span class="device-percentage">35%</span>
+                                <div class="device-bar">
+                                    <div class="device-fill" style="width: 35%"></div>
+                                </div>
+                            </div>
+                            <div class="device-item">
+                                <span class="device-name">Refrigerator</span>
+                                <span class="device-percentage">25%</span>
+                                <div class="device-bar">
+                                    <div class="device-fill" style="width: 25%"></div>
+                                </div>
+                            </div>
+                            <div class="device-item">
+                                <span class="device-name">Lighting</span>
+                                <span class="device-percentage">20%</span>
+                                <div class="device-bar">
+                                    <div class="device-fill" style="width: 20%"></div>
+                                </div>
+                            </div>
+                            <div class="device-item">
+                                <span class="device-name">Other</span>
+                                <span class="device-percentage">20%</span>
+                                <div class="device-bar">
+                                    <div class="device-fill" style="width: 20%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Tab -->
+        <div class="tab-content" id="usage">
+            <div class="card">
+                <h2>Daily Average</h2>
+                <p class="daily-average">135 W</p>
+            </div>
+
+            <div class="card">
+                <h2>Monthly Average</h2>
+                <p class="monthly-average">142 W</p>
+            </div>
+
+            <div class="card">
+                <h2>Yearly Average</h2>
+                <p class="yearly-average">138 W</p>
+            </div>
+
+            <div class="card app-usage">
+                <h2>Application Usage</h2>
+                <div class="app-list">
+                    <div class="app-item">
+                        <span class="app-name">Air Conditioner</span>
+                        <span class="app-power">45.50 W</span>
+                        <div class="power-bar">
+                            <div class="power-level" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div class="app-item">
+                        <span class="app-name">Refrigerator</span>
+                        <span class="app-power">35.25 W</span>
+                        <div class="power-bar">
+                            <div class="power-level" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    <div class="app-item">
+                        <span class="app-name">Lighting</span>
+                        <span class="app-power">25.75 W</span>
+                        <div class="power-bar">
+                            <div class="power-level" style="width: 25%"></div>
+                        </div>
+                    </div>
+                    <div class="app-item">
+                        <span class="app-name">Other Devices</span>
+                        <span class="app-power">53.50 W</span>
+                        <div class="power-bar">
+                            <div class="power-level" style="width: 53%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energy Tab -->
+        <div class="tab-content" id="energy">
+            <div class="card input-card">
+                <h2>Add Energy Data</h2>
+                <form id="energyInputForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="device">Device</label>
+                            <select id="device" name="device" required>
+                                <option value="">Select a device</option>
+                                <option value="ac">Air Conditioner</option>
+                                <option value="fridge">Refrigerator</option>
+                                <option value="lighting">Lighting</option>
+                                <option value="other">Other Devices</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="usage">Energy Usage (W)</label>
+                            <input type="number" id="usage" name="usage" step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="timestamp">Timestamp</label>
+                            <input type="datetime-local" id="timestamp" name="timestamp" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Add Data</button>
+                    </div>
+                </form>
+                
+                <div class="file-upload">
+                    <h3>Or Import Data</h3>
+                    <div class="file-input-group">
+                        <input type="file" id="dataFile" accept=".csv,.json">
+                        <button id="importBtn" class="import-btn">Import</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 

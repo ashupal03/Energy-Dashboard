@@ -2,16 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Energy Dashboard</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
     <header class="main-header">
         <div class="header-content">
-            <h1 class="logo">Energy Monitor</h1>
+            <div class="logo-container">
+                <img src="logo.png" alt="Eco-Vision Logo" class="logo-img">
+                <h1 class="logo-text">Eco-Vision</h1>
+            </div>
             <nav class="main-nav">
                 <ul class="nav-list">
                     <li class="nav-item active">
@@ -36,6 +43,12 @@
                         <a href="#energy" class="nav-link">
                             <span class="nav-icon">⚡</span>
                             Energy
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#contact" class="nav-link">
+                            <span class="nav-icon">📧</span>
+                            Contact
                         </a>
                     </li>
                 </ul>
@@ -244,7 +257,120 @@
                 </div>
             </div>
         </div>
+
+        <!-- Contact Tab -->
+        <div class="tab-content" id="contact">
+            <div class="card contact-card">
+                <h2>Contact Us</h2>
+                <p class="contact-description">Have questions or feedback? We'd love to hear from you!</p>
+                
+                <form id="contactForm" class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <select id="subject" name="subject" required>
+                            <option value="">Select a subject</option>
+                            <option value="general">General Inquiry</option>
+                            <option value="technical">Technical Support</option>
+                            <option value="feedback">Feedback</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+                
+                <div class="contact-info">
+                    <div class="info-item">
+                        <span class="info-icon">📧</span>
+                        <span class="info-text">support@ecovision.com</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📞</span>
+                        <span class="info-text">+91 7676448532</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📍</span>
+                        <span class="info-text">123 Energy Street, Tech City, TC 12345</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
+    
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Energy Monitor</h3>
+                <p>Your trusted partner in energy management and monitoring solutions.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#analysis">Analysis</a></li>
+                    <li><a href="#usage">Usage</a></li>
+                    <li><a href="#energy">Energy</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <ul class="contact-info">
+                    <li>
+                        <span class="icon">📧</span>
+                        <a href="mailto:support@energymonitor.com">support@ecovision.com</a>
+                    </li>
+                    <li>
+                        <span class="icon">📞</span>
+                        <a href="tel:+15551234567">+91 7676448532</a>
+                    </li>
+                    <li>
+                        <span class="icon">📍</span>
+                        <span>123 Energy Street, Tech City, TC 12345</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 Energy Monitor. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html> 

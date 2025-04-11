@@ -1,17 +1,17 @@
-// Store device data
+// Static device data
 const deviceData = {
-    ac: { power: 0, voltage: 220, current: 0 },
-    fridge: { power: 0, voltage: 220, current: 0 },
-    lighting: { power: 0, voltage: 220, current: 0 },
-    other: { power: 0, voltage: 220, current: 0 }
+    ac: { power: 45.50, voltage: 220, current: 0.21 },
+    fridge: { power: 35.25, voltage: 220, current: 0.16 },
+    lighting: { power: 25.75, voltage: 220, current: 0.12 },
+    other: { power: 53.50, voltage: 220, current: 0.24 }
 };
 
 // Initialize chart data
 const chartData = {
-    labels: [],
+    labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
     datasets: [{
         label: 'Total Power (W)',
-        data: [],
+        data: [120, 80, 90, 110, 130, 150, 160, 140],
         borderColor: 'rgb(75, 192, 192)',
         tension: 0.1,
         fill: true,
@@ -19,17 +19,7 @@ const chartData = {
     }]
 };
 
-// Update device data
-function updateDeviceData(deviceId, data) {
-    if (deviceData[deviceId]) {
-        deviceData[deviceId] = {
-            ...deviceData[deviceId],
-            ...data
-        };
-    }
-}
-
-// Update dashboard with latest data
+// Update dashboard with static data
 function updateDashboard() {
     try {
         // Update current usage
@@ -53,53 +43,128 @@ function updateDashboard() {
             item.querySelector('.power-level').style.width = `${(power / totalPower * 100).toFixed(1)}%`;
         });
 
-        // Update chart
-        if (window.energyChart) {
-            const now = new Date().toLocaleTimeString();
-            chartData.labels.push(now);
-            chartData.datasets[0].data.push(totalPower);
-            
-            // Keep only last 20 data points
-            if (chartData.labels.length > 20) {
-                chartData.labels.shift();
-                chartData.datasets[0].data.shift();
-            }
-            
-            window.energyChart.update();
-        }
     } catch (error) {
-        console.error('Error updating dashboard:', error);
-        showAlert('Error updating dashboard', 'error');
+        handleError(error, 'dataUpdate');
     }
 }
 
 // Show alert message
 function showAlert(message, type = 'info') {
-    const alertContainer = document.querySelector('.alert-container');
-    const alert = document.createElement('div');
-    alert.className = `alert ${type}`;
-    alert.innerHTML = `
-        <span class="alert-icon">${type === 'error' ? '⚠️' : type === 'warning' ? '⚠️' : type === 'success' ? '✅' : 'ℹ️'}</span>
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    
+    // Format message if it contains newlines
+    const formattedMessage = message.split('\n').map(line => 
+        `<div class="alert-line">${line.trim()}</div>`
+    ).join('');
+    
+    alertDiv.innerHTML = `
         <div class="alert-content">
             <div class="alert-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
-            <div class="alert-message">${message}</div>
+            <div class="alert-message">${formattedMessage}</div>
         </div>
-        <button class="alert-close">&times;</button>
     `;
     
-    alertContainer.appendChild(alert);
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
     
-    // Auto remove after 5 seconds
+    // Auto-remove after 5 seconds
     setTimeout(() => {
-        alert.classList.add('hide');
-        setTimeout(() => alert.remove(), 300);
+        alertDiv.classList.add('fade-out');
+        setTimeout(() => alertDiv.remove(), 300);
     }, 5000);
+}
+
+function handleError(error, context) {
+    console.error(`Error in ${context}:`, error);
     
-    // Close button
-    alert.querySelector('.alert-close').addEventListener('click', () => {
-        alert.classList.add('hide');
-        setTimeout(() => alert.remove(), 300);
-    });
+    let userMessage = 'An error occurred. Please try again.';
+    let recoveryAction = null;
+    
+    if (error instanceof TypeError) {
+        userMessage = 'A configuration error occurred. Please check your settings.';
+        recoveryAction = () => {
+            if (context === 'chartInitialization') {
+                setTimeout(initializeChart, 2000);
+            }
+        };
+    } else if (error instanceof RangeError) {
+        userMessage = 'Invalid data range detected. Please check your inputs.';
+        recoveryAction = () => {
+            if (context === 'formSubmission') {
+                document.getElementById('energyForm').reset();
+            }
+        };
+    } else if (error.message) {
+        userMessage = error.message;
+    }
+    
+    showAlert(userMessage, 'error');
+    
+    if (recoveryAction) {
+        recoveryAction();
+    }
+}
+
+// Initialize chart
+function initializeChart() {
+    try {
+        const ctx = document.getElementById('energyChart');
+        if (!ctx) {
+            throw new Error('Chart canvas element not found');
+        }
+        
+        window.energyChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y.toFixed(2)} W`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power (W)'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        handleError(error, 'chartInitialization');
+    }
 }
 
 // Initialize dashboard when DOM is loaded
@@ -115,79 +180,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initialize chart
-    const ctx = document.getElementById('energyChart');
-    if (ctx) {
-        window.energyChart = new Chart(ctx, {
-            type: 'line',
-            data: chartData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                animation: {
-                    duration: 0
-                }
-            }
-        });
-    }
+    initializeChart();
 
     // Handle form submission
-    const energyForm = document.getElementById('energyInputForm');
+    const energyForm = document.getElementById('energyForm');
     if (energyForm) {
-        energyForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const device = document.getElementById('device').value;
-            const usage = parseFloat(document.getElementById('usage').value);
-            const timestamp = document.getElementById('timestamp').value;
-            
-            if (device && usage && timestamp) {
+        energyForm.addEventListener('submit', function(e) {
+            try {
+                e.preventDefault();
+                
+                const device = document.getElementById('device').value;
+                const power = parseFloat(document.getElementById('power').value);
+                const voltage = parseFloat(document.getElementById('voltage').value);
+                const current = parseFloat(document.getElementById('current').value);
+                
+                // Validate inputs
+                const errors = validateFormInputs(device, power, voltage, current);
+                if (errors.length > 0) {
+                    errors.forEach(error => showAlert(error, 'error'));
+                    return;
+                }
+                
                 // Update device data
                 deviceData[device] = {
-                    power: usage,
-                    voltage: 220,
-                    current: usage / 220
+                    power: power,
+                    voltage: voltage,
+                    current: current
                 };
-
-                // Update UI
+                
+                // Update dashboard
                 updateDashboard();
                 
-                // Show success message
-                showAlert('Data added successfully', 'success');
+                // Show success message with details
+                showAlert(`Device "${device}" updated successfully:
+                    Power: ${power}W
+                    Voltage: ${voltage}V
+                    Current: ${current}A`, 'success');
                 
                 // Reset form
-                energyForm.reset();
-            }
-        });
-    }
-
-    // Handle file import
-    const importBtn = document.getElementById('importBtn');
-    const dataFile = document.getElementById('dataFile');
-    
-    if (importBtn && dataFile) {
-        importBtn.addEventListener('click', () => {
-            const file = dataFile.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        // Update device data with imported data
-                        Object.assign(deviceData, data);
-                        updateDashboard();
-                        showAlert('Data imported successfully', 'success');
-                    } catch (error) {
-                        showAlert('Invalid file format', 'error');
-                    }
-                };
-                reader.readAsText(file);
-            } else {
-                showAlert('Please select a file', 'warning');
+                this.reset();
+                
+            } catch (error) {
+                handleError(error, 'formSubmission');
             }
         });
     }
@@ -223,4 +257,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial dashboard update
     updateDashboard();
-}); 
+});
+
+function validateFormInputs(device, power, voltage, current) {
+    const errors = [];
+    
+    if (!device) {
+        errors.push('Please select a device');
+    }
+    
+    if (isNaN(power) || power < 0) {
+        errors.push('Power must be a positive number');
+    } else if (power > 10000) {
+        errors.push('Power value seems too high. Please check your input');
+    }
+    
+    if (isNaN(voltage) || voltage < 0) {
+        errors.push('Voltage must be a positive number');
+    } else if (voltage > 500) {
+        errors.push('Voltage value seems too high. Please check your input');
+    }
+    
+    if (isNaN(current) || current < 0) {
+        errors.push('Current must be a positive number');
+    } else if (current > 50) {
+        errors.push('Current value seems too high. Please check your input');
+    }
+    
+    // Validate power calculation
+    if (!isNaN(power) && !isNaN(voltage) && !isNaN(current)) {
+        const calculatedPower = voltage * current;
+        const powerDiff = Math.abs(power - calculatedPower);
+        if (powerDiff > 10) { // Allow 10W difference
+            errors.push(`Power value (${power}W) doesn't match calculated power (${calculatedPower.toFixed(2)}W)`);
+        }
+    }
+    
+    return errors;
+} 
